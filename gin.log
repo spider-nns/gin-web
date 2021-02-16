@@ -1,0 +1,6 @@
+[GIN-debug] GET    /ping                     --> main.main.func1 (3 handlers)
+[GIN-debug] GET    /v1/get                   --> main.getting (3 handlers)
+[GIN-debug] GET    /v1/getPath/:param        --> main.pathing (3 handlers)
+[GIN-debug] POST   /v1/post                  --> main.posting (3 handlers)
+[GIN-debug] POST   /v1/mixed                 --> main.mixing (3 handlers)
+[GIN-debug] Listening and serving HTTP on :8555
