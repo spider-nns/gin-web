@@ -4,20 +4,28 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"google.golang.org/appengine/log"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"time"
 )
 
 func main() {
-	//gin.DisableConsoleColor()
+	//禁止控制台颜色
+	//1.gin.DisableConsoleColor()
+	//gin.ForceConsoleColor()
 	router := gin.New()
+
+	//2.中间件
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
-	//日志
+
+	//3.设置表单上传大小，默认32MB
+	router.MaxMultipartMemory = 1 << 20 // 1MB
+
+	//4.日志
 	ginLogFile, err := os.OpenFile("gin.log", os.O_CREATE|os.O_RDWR, 06444)
 	if err != nil {
 		_ = fmt.Errorf("gin log file open err,err:%v", err)
@@ -42,21 +50,62 @@ func main() {
 		)
 	}))
 
+
 	router.GET("/ping", func(context *gin.Context) {
 		context.JSON(http.StatusOK, gin.H{
 			"msg": "pong",
 		})
 	})
 	simpleGroup := router.Group("/v1")
+	//AuthRequired just use in simpleGroup
+	//simpleGroup.Use(AuthRequired())
 	{
 		simpleGroup.GET("/get", getting)
 		simpleGroup.GET("/getPath/:param", pathing)
 		simpleGroup.POST("/post", posting)
 		simpleGroup.POST("/mixed", mixing)
+		simpleGroup.POST("/singleFile", singleFileUpload)
+		simpleGroup.POST("multiFile", multiFile)
 		//router.GET("/put", puting)
 		//router.GET("/delete", deleting)
+
+		nestedGroup := simpleGroup.Group("nestedGroup")
+		nestedGroup.GET("analytics", analyticsEndpoint)
+		///v1/nestedGroup/analytics
+
 	}
 	_ = router.Run(":8555")
+}
+
+func analyticsEndpoint(context *gin.Context) {
+
+}
+
+//多文件上传
+func multiFile(context *gin.Context) {
+	form, err := context.MultipartForm()
+	if err != nil {
+		fmt.Printf("received multi file err:%v", err)
+	}
+	files := form.File["file[]"]
+	for index, file := range files {
+		log.Printf("receive no:%v file:%s", index, file.Filename)
+		//
+	}
+	context.String(http.StatusOK, fmt.Sprintf("%d files uploaded!", len(files)))
+	//curl -X POST  localhost:8555/v1/multiFile -H "Content-type:multipart/form-data" -F "file[]=@/Users/spider/Desktop/a.txt" -F "file[]=@/Users/spider/Desktop/年终总结.PDF"| json
+}
+
+//单文件上传
+func singleFileUpload(context *gin.Context) {
+	file, err := context.FormFile("file")
+	if err != nil {
+		fmt.Printf("received file from data err:%v", err)
+	}
+	fmt.Printf("receive file %s", file.Filename)
+	//
+	context.String(http.StatusOK, fmt.Sprintf("%s uploaded!", file.Filename))
+	//curl -X POST  localhost:8555/v1/singleFile -H "Content-type:multipart/form-data" -F "file=@/Users/spider/Desktop/a.txt" | json
 }
 
 //get+post
@@ -76,7 +125,7 @@ func posting(context *gin.Context) {
 	}{}
 	err := json.Unmarshal(bsData, param)
 	if err != nil {
-		log.Errorf(context, "json.Unmarshal.err, err:%v", err)
+		fmt.Printf("json.Unmarshal.err, err:%v", err)
 	}
 	//context.Request.ParseForm()
 	//msg := context.PostForm("msg")

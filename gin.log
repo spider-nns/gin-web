@@ -1,6 +1,11 @@
-[GIN-debug] GET    /ping                     --> main.main.func1 (3 handlers)
-[GIN-debug] GET    /v1/get                   --> main.getting (3 handlers)
-[GIN-debug] GET    /v1/getPath/:param        --> main.pathing (3 handlers)
-[GIN-debug] POST   /v1/post                  --> main.posting (3 handlers)
-[GIN-debug] POST   /v1/mixed                 --> main.mixing (3 handlers)
+[GIN-debug] GET    /ping                     --> main.main.func2 (6 handlers)
+[GIN-debug] GET    /v1/get                   --> main.getting (6 handlers)
+[GIN-debug] GET    /v1/getPath/:param        --> main.pathing (6 handlers)
+[GIN-debug] POST   /v1/post                  --> main.posting (6 handlers)
+[GIN-debug] POST   /v1/mixed                 --> main.mixing (6 handlers)
+[GIN-debug] POST   /v1/singleFile            --> main.singleFileUpload (6 handlers)
+[GIN-debug] POST   /v1/multiFile             --> main.multiFile (6 handlers)
+[GIN-debug] GET    /v1/nestedGroup/analytics --> main.analyticsEndpoint (6 handlers)
 [GIN-debug] Listening and serving HTTP on :8555
+::1 - [Tue, 23 Feb 2021 00:44:15 CST] "POST /v1/singleFile HTTP/1.1 200 1.94825ms"curl/7.64.1""
+url/7.64.1""
