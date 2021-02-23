@@ -36,19 +36,24 @@ func main() {
 	//将日志同时写入文件和控制台
 	gin.DefaultWriter = io.MultiWriter(ginLogFile, os.Stdout)
 	//日志格式
-	router.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-		return fmt.Sprintf("%s - [%s] \"%s %s %s %d %s\"%s\"%s\"\n",
-			param.ClientIP,
-			param.TimeStamp.Format(time.RFC1123),
-			param.Method,
-			param.Path,
-			param.Request.Proto,
-			param.StatusCode,
-			param.Latency,
-			param.Request.UserAgent(),
-			param.ErrorMessage,
-		)
-	}))
+	loggerConfig := gin.LoggerConfig{
+		Output:    ginLogFile,
+		SkipPaths: []string{"/test"},
+		Formatter: func(param gin.LogFormatterParams) string {
+			return fmt.Sprintf("%s - [%s] \"%s %s %s %d %s\"%s\"%s\"\n",
+				param.ClientIP,
+				param.TimeStamp.Format(time.RFC1123),
+				param.Method,
+				param.Path,
+				param.Request.Proto,
+				param.StatusCode,
+				param.Latency,
+				param.Request.UserAgent(),
+				param.ErrorMessage,
+			)
+		},
+	}
+	router.Use(gin.LoggerWithConfig(loggerConfig))
 
 
 	router.GET("/ping", func(context *gin.Context) {
